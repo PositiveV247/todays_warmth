@@ -9,8 +9,7 @@ class DBHelper {
   static Database? _database;
 
   Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDB();
+    _database ??= await _initDB();
     return _database!;
   }
 
@@ -21,22 +20,31 @@ class DBHelper {
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE missions (
+          CREATE TABLE completed_missions (
             id TEXT PRIMARY KEY,
-            date TEXT,
-            completed INTEGER
+            date TEXT
           )
         ''');
       },
     );
   }
 
-  Future<void> insertMission(String id, String date) async {
+  // 미션 완료 저장
+  Future<void> saveMission(String missionId) async {
     final db = await database;
     await db.insert(
-      'missions',
-      {'id': id, 'date': date, 'completed': 1},
+      'completed_missions',
+      {
+        'id': missionId,
+        'date': DateTime.now().toIso8601String(),
+      },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  // 저장된 미션 불러오기
+  Future<List<Map<String, dynamic>>> getAllMissions() async {
+    final db = await database;
+    return await db.query('completed_missions', orderBy: 'date DESC');
   }
 }

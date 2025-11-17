@@ -44,9 +44,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text("⏱ ${todayMission!['duration']}"),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      final db = DBHelper();
+                      await db.saveMission(todayMission!['id']);
+
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(todayMission!['praise'] ?? "완료!")),
+                        SnackBar(
+                            content: Text(todayMission!['praise'] ?? "완료! 작은 온기가 쌓였어요 🤲"),
+                            duration: Duration(seconds: 2),
+                        ),
                       );
                     },
                     child: Text("완료!"),
